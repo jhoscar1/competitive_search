@@ -58,13 +58,14 @@ const makeMove = (state) => {
 
 		const stateValue = minimax(potentialState, depth, playerMoving);
 		//const stateValue = minimaxAlphaBetaWrapper(potentialState, depth, playerMoving)
-
+		
 		if (stateValue > bestMoveValue || bestMoveValue === null){
 			bestMoveIndex = i;
 			bestMoveValue = stateValue;
 		}
 
 	});
+	console.log(bestMoveValue);
 	return allLegalMoves[bestMoveIndex]
 
 }
@@ -97,10 +98,18 @@ const heuristic = (state, maximizingPlayer) => {
     const minimizingPlayer = (maximizingPlayer == 'x') ? 'o' : 'x';
 
 	//An example.
-    const linesOfLengthTwoForX = state.numLines(2, 'x')
+    const linesOfLengthTwoForX = state.numLines(2, 'x');
+    const linesOfLengthThreeForX = 10*state.numLines(3, 'x');
+    const linesOfLengthFourForX = 100*state.numLines(4, 'x');
+	
 
-    //Your code here.  Don't return random, obviously.
-	return Math.random()
+	if (maximizingPlayer === 'x') {
+		//console.log(linesOfLengthFourForX + linesOfLengthThreeForX + linesOfLengthTwoForX);
+		return linesOfLengthFourForX + linesOfLengthThreeForX + linesOfLengthTwoForX;
+	}
+	else {
+		return -(linesOfLengthFourForX + linesOfLengthThreeForX + linesOfLengthTwoForX);
+	}
 }
 
 
@@ -129,7 +138,36 @@ const minimax = (state, depth, maximizingPlayer) => {
 	var possibleStates = state.nextStates();
 	var currentPlayer = state.nextMovePlayer;
 	//Your code here.
-	return Math.random();
+	if (depth === 0 || possibleStates.length === 0) {
+		return heuristic(state, maximizingPlayer);
+	}
+	// possibleStates.map(state => {
+	// 	return minimax(state, depth-1, currentPlayer);
+	// })
+
+	let maxValue = 0;
+	let minValue = 0;
+	possibleStates.forEach(possibleState => {
+		const stateValue = minimax(possibleState, depth - 1, currentPlayer)
+		if (currentPlayer === maximizingPlayer) {
+			if (stateValue > maxValue) {
+				maxValue = stateValue;
+			}
+		}
+		else {
+			if (stateValue < minValue) {
+				minValue = stateValue;
+			}
+		}
+
+	})
+	//console.log(maxValue);
+	if (currentPlayer === maximizingPlayer) {
+		return maxValue;
+	}
+	else {
+		return minValue;
+	}
 }
 
 
